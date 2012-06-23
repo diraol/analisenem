@@ -8,12 +8,20 @@
     <link rel="stylesheet" href="jquery-tooltip/jquery.tooltip.css" />
     <style type="text/css">
 
-body {
+.graph {
   font: 10px sans-serif;
 }
 
+.filtro {
+	background-color: #E8E8E8;
+	padding: 20px 20px;
+	width: 150px;
+	float: left;
+	margin-left:10px;
+}
+
 path.dot {
-  fill: white;
+  /*fill: white;*/
   stroke-width: 1.5px;
 }
 
@@ -42,17 +50,45 @@ rect {
   </head>
   <body>
   	
-    <div id="graph_0"></div>
+    <div id="graph_0" class="graph"></div>
     
    
-    <div id="graph_1"></div>
+    <div id="graph_1" class="graph"></div>
     
     
-    <div id="graph_2"></div>
+    <div id="graph_2" class="graph"></div>
 
   	
     <script type="text/javascript">
 
+// Clear the previously-active brush, if any.
+  function brushstart(p) {
+  	
+  	console.log('brushstart');
+    if (brush.data !== p) {
+      cell.call(brush.clear());
+      brush.x(x[p.x]).y(y[p.y]).data = p;
+    }
+  }
+
+  // Highlight the selected circles.
+  function brush(p) {
+  	console.log('brush');
+    var e = brush.extent();
+    svg.selectAll(".cell circle").attr("class", function(d) {
+      return e[0][0] <= d[p.x] && d[p.x] <= e[1][0]
+          && e[0][1] <= d[p.y] && d[p.y] <= e[1][1]
+          ? d.species : null;
+    });
+  }
+
+  // If the brush is empty, select all circles.
+  function brushend() {
+    if (brush.empty()) svg.selectAll(".cell circle").attr("class", function(d) {
+      return d.species;
+    });
+  }
+  
 var width = 450,
     height = 450,
     margin = 20;
@@ -69,6 +105,12 @@ var y = d3.scale.linear()
 
 var symbol = d3.scale.ordinal().range(d3.svg.symbolTypes),
     color = d3.scale.category10();
+    
+    // Brush.
+  var brush = d3.svg.brush()
+      .on("brushstart", brushstart)
+      .on("brush", brush)
+      .on("brushend", brushend);
 
 for (i = 0; i < n; i++) {
 
@@ -128,7 +170,7 @@ for (i = 0; i < n; i++) {
 	  .enter().append("path")
 	    .attr("class", "dot")
 	    .attr("tooltip", function(d, j) { return 'Painel: ' + i + ' / Num: ' + j; })
-	    .attr("stroke", function(d, i) { return color(i); })
+	    .attr("fill", function(d, i) { return (i % 2 == 0 ? color(i) : 'black'); })
 	    .attr("transform", function(d) { return "translate(" + x(d.x) + "," + y(d.y) + ")"; })
 	    .attr("d", d3.svg.symbol()
 	    //.type(function(d, i) { return symbol(i); })
@@ -138,19 +180,43 @@ for (i = 0; i < n; i++) {
 }
 
 $(document).ready(function () {
-	var count = data.length;
-	//for (i = 0; i < count; i++) {
-		$('path').each(function () {
-			$(this).tooltip({ 
-			    bodyHandler: function() { 
-			        return $(this).attr('tooltip');
-			    }, 
-			    showURL: false 
-			});
+	$('path').each(function () {
+		$(this).tooltip({ 
+		    bodyHandler: function() { 
+		        return $(this).attr('tooltip');
+		    }, 
+		    showURL: false 
 		});
-	//}
+	});
 });
     </script>
+    
+    <p class="filtro">
+	    Estado:
+	    <select id="estado" name="estado">
+	    	<option value="1">Estado 1</option>
+	    	<option value="2">Estado 2</option>
+	    	<option value="3">Estado 3</option>
+	    </select>
+    </p>
+    
+    <p class="filtro">
+	    Cidade:
+	    <select id="cidade" name="cidade">
+	    	<option value="1">Cidade 1</option>
+	    	<option value="2">Cidade 2</option>
+	    	<option value="3">Cidade 3</option>
+	    </select>
+    </p>
+    
+    <p class="filtro">
+	    Estado:
+	    <select id="estado" name="estado">
+	    	<option value="1">Estado 1</option>
+	    	<option value="2">Estado 2</option>
+	    	<option value="3">Estado 3</option>
+	    </select>
+    </p>
     
     
   </body>
