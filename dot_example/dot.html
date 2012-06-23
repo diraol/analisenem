@@ -2,7 +2,7 @@
 <html>
   <head>
     <title>Dot Plot</title>
-    <script type="text/javascript" src="../../d3.v2.js"></script>
+    <script type="text/javascript" src="/d3/d3.v2.js"></script>
     <script type="text/javascript" src="jquery-1.7.2.min.js"></script>
     <script type="text/javascript" src="jquery-tooltip/jquery.tooltip.js"></script>
     <link rel="stylesheet" href="jquery-tooltip/jquery.tooltip.css" />
@@ -42,7 +42,7 @@ rect {
   </head>
   <body>
   	
-  	    <div id="graph_0"></div>
+    <div id="graph_0"></div>
     
    
     <div id="graph_1"></div>
@@ -52,12 +52,6 @@ rect {
 
   	
     <script type="text/javascript">
-
-var data = d3.range(100).map(function(i) {
-  return {x: i / 99, y: Math.random()};
-});
-
-console.log(data.length);
 
 var width = 450,
     height = 450,
@@ -77,6 +71,10 @@ var symbol = d3.scale.ordinal().range(d3.svg.symbolTypes),
     color = d3.scale.category10();
 
 for (i = 0; i < n; i++) {
+
+	var data = d3.range(100).map(function(i) {
+	  return {x: i / 99, y: Math.random()};
+	});
 
 	var vis = d3.select("#graph_" + i).style('width', w).style('height', h)
 	  .append("svg")
@@ -129,7 +127,7 @@ for (i = 0; i < n; i++) {
 	    .data(data)
 	  .enter().append("path")
 	    .attr("class", "dot")
-	    .attr("number", function(d, i) { return i; })
+	    .attr("tooltip", function(d, j) { return 'Painel: ' + i + ' / Num: ' + j; })
 	    .attr("stroke", function(d, i) { return color(i); })
 	    .attr("transform", function(d) { return "translate(" + x(d.x) + "," + y(d.y) + ")"; })
 	    .attr("d", d3.svg.symbol()
@@ -141,14 +139,16 @@ for (i = 0; i < n; i++) {
 
 $(document).ready(function () {
 	var count = data.length;
-	for (i = 0; i < count; i++) {
-		$('path[number="' + i + '"]').tooltip({ 
-		    bodyHandler: function() { 
-		        return $(this).attr('number');
-		    }, 
-		    showURL: false 
+	//for (i = 0; i < count; i++) {
+		$('path').each(function () {
+			$(this).tooltip({ 
+			    bodyHandler: function() { 
+			        return $(this).attr('tooltip');
+			    }, 
+			    showURL: false 
+			});
 		});
-	}
+	//}
 });
     </script>
     
